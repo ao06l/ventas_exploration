@@ -1,0 +1,321 @@
+/* * script  ---> scriptventasV4.txt  (Por: Tamara Batista) */ 
+/* *** El presente script genera en forma completa la Base de Datos VENTAS  *** */
+/* *** esta base de datos la utilizaremos para el Sistema de Base de Datos de *** */
+/* *** Pedidos de Clientes.  ****** */
+
+
+/*  Se activa la base de datos plantilla de SQL Server para crear Base de Datos */
+USE master
+
+
+/*  Se elimina la Base de Datos VENTAS si esta ya existe sino entonces se creará */
+IF DB_ID('VENTAS') IS NOT NULL
+BEGIN
+    DROP DATABASE VENTAS
+END
+
+
+/*  Se Crea la Base de Datos VENTAS  */
+CREATE DATABASE VENTAS ON PRIMARY
+ (
+  NAME=VENTAS_data, 
+  FILENAME='c:\VENTAS.mdf', 
+  SIZE=5MB,
+  MAXSIZE=8MB,
+  FILEGROWTH=1MB
+  )
+LOG ON 
+  (
+  NAME=VENTAS_log, 
+  FILENAME='c:\VENTAS.ldf', 
+  SIZE=5MB,
+  MAXSIZE=8MB,
+  FILEGROWTH=1MB
+  )
+
+GO
+
+/*  Se activa la base de datos VENTAS para realizar operaciones sobre ella */
+
+USE VENTAS
+GO
+
+/*  Creando la  TABLA  CLIENTE */
+create table CLIENTE (NUMCLI INT not null,
+         NOMCLI char(30) not null, DIRCLI char(30), FAX INT, E_MAIL CHAR(30) DEFAULT ('Desconocido'), SALD_0_30 DECIMAL (10,2), SALD_31_60 DECIMAL (10,2),
+SALD_61_90 DECIMAL (10,2), primary key  (NUMCLI) )
+
+/*  Creando la  TABLA  VENDEDOR */
+create table VENDEDOR (CODVEND INT not null,
+         NOMVEND char(20) not null,APELLVEND char(20) not null,
+         DIRVEND char(30), TELVEND INT, E_MAIL CHAR(30) DEFAULT('Desconocido'),
+         CUOTA DECIMAL (10,2), VENTAS DECIMAL (10,2), primary key  (CODVEND) )
+GO
+USE VENTAS
+GO
+/*  Creando la  TABLA  PEDIDO */
+create table PEDIDO (NUMPED INT not null PRIMARY   KEY,
+         NUMCLI INT  not null, FECHA_PED DATETIME,
+         TOT_DESC DECIMAL (10,2), CODVEND INT  not null,
+         FOREIGN KEY (NUMCLI) REFERENCES CLIENTE(NUMCLI), 
+         FOREIGN KEY (CODVEND) REFERENCES VENDEDOR(CODVEND))
+GO
+USE VENTAS
+GO 
+
+/*  Create the Database  ARTICULO */
+CREATE TABLE ARTICULO  (NUMART char(4) not null PRIMARY KEY,
+         DESCRIPCION CHAR(30), PRECIO  DECIMAL (10,2) NOT NULL CHECK (PRECIO >= 0.00),  
+         EXISTENCIA INT, CATEGORIA_ART CHAR (15))
+GO 
+
+USE VENTAS
+GO
+
+/*  Creando la  TABLA DETALLE_PED  */
+CREATE TABLE DETALLE_PED (NUMPED INT not null,
+         NUMART char (4)  not null,  CANTIDAD INT CHECK (CANTIDAD >= 0),
+PRIMARY KEY (NUMPED,NUMART), 
+FOREIGN KEY (NUMPED) REFERENCES PEDIDO(NUMPED),
+FOREIGN KEY (NUMART) REFERENCES ARTICULO (NUMART) )
+
+GO
+USE VENTAS
+GO
+
+/** Insertando  Registro de clientes en tabla CLIENTE */
+
+insert into cliente ( NUMCLI, NOMCLI, DIRCLI, FAX , E_MAIL, SALD_0_30, SALD_31_60,SALD_61_90)
+Values (812,'Haper University','33Whipple Lane,Rosboro, NY', 2358741,'Harper@harperuniv.edu',100.00,75.00,50.00)
+
+insert into cliente ( NUMCLI, NOMCLI, DIRCLI, FAX , E_MAIL, SALD_0_30, SALD_31_60,SALD_61_90)
+Values (1319,'McGraw  Manufacturing','98 Main, Endicott,NY 13760', 1242325,'McGraw@Mcgraw.com',250.00,315.00,50.00)
+
+insert into cliente ( NUMCLI, NOMCLI, DIRCLI, FAX , E_MAIL, SALD_0_30, SALD_31_60, SALD_61_90)
+Values (2107,'Union Hospital','1021 6th Avenue, NY, NY 10021', 2642414,'Uhospital@unionhospital.org',85.00,10.00,33.00)
+insert into cliente ( NUMCLI, NOMCLI, DIRCLI, FAX , E_MAIL, SALD_0_30, SALD_31_60,SALD_61_90)
+Values (824,'Hara Enterprises','Commerce Circle, NY 13760', 2244111,'henterprice@henterprice.com',95.50,112.00,65.00)
+
+insert into cliente ( NUMCLI, NOMCLI, DIRCLI, FAX , E_MAIL, SALD_0_30, SALD_31_60,SALD_61_90)
+Values (836,'Holiday Inn Downtown','10 Downey Street, NY 13760', 2932400,'holiday@holiday.com',84.00,115.00,250.00)
+
+
+/* * Se insertan clientes en la tabla Cliente que no tendran pedido relacionado *  */
+
+insert into cliente ( NUMCLI, NOMCLI, DIRCLI, FAX , E_MAIL, SALD_0_30, SALD_31_60,SALD_61_90)
+Values (1826,'Doit Center','110 Cows Street, NY 11280', 2987252,'doit@doitcenter.com',0,0,00)
+
+insert into cliente ( NUMCLI, NOMCLI, DIRCLI, FAX , E_MAIL, SALD_0_30, SALD_31_60,SALD_61_90)
+Values (1831,'Price Cosco','325 Blopws Street, FL 25880', 2372547,'price@pricecosco.com',0,0,00)
+
+insert into cliente ( NUMCLI, NOMCLI, DIRCLI, FAX , E_MAIL, SALD_0_30, SALD_31_60,SALD_61_90)
+Values (1901,'Sears','458 Bridge Street, TX 58460', 2125727,'sears@sears.com',0,0,00)
+
+
+GO
+
+USE VENTAS
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('T101','Manteles', 0.95, 250,'HOGAR')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('B16','Cobija', 1.55, 500,'HOGAR')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('C118','Sabanas', 3.95, 800,'HOGAR')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('B14','Toallas', 0.42, 100,'HOGAR')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('N38','Servilletas', 0.84, 1000,'HOGAR')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('R504','Zapatillas', 75.95, 32,'DEPORTES')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('F251','Raqueta de Tenis', 35.95, 74,'DEPORTES')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('S247','Tornillos 3/4', 0.29, 420,'FERRETERIA')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('D117','Tacos 3/4', 0.18, 341,'FERRETERIA')
+insert into articulo ( numart, descripcion, precio, existencia,categoria_art)
+Values ('A38','Velas Aromaticas', 1.28, 81,'HOGAR')
+
+GO
+USE VENTAS 
+GO
+
+/* Insertando Registros en tabla VENDEDOR */
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (1,'Luis','Medina','Vía España',2332072,'lmedina@hotmail.com',3500.00, 3791.00)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (2,'José','Prado','Ave. El Dorado',2256070,'joseprado@hotmail.com',7060.00, 9725.00)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (3,'Mario','Salazar','Los Andes #2',3354125,'m_salazar@yahoo.com',750.00, 8050.00)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (4,'Juan','Ramírez','Ave. Calidonia',2335478,'ramirezj@hotmail.com',600.00, 892.00)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (5,'Francisco','Tuñón','San Miguelito',2367854,'franc_t@hotmail.com',200.00, 0)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (6,'Marcos','Pinzón','La Chorrera',3338745,'pinzonmarc@yahoo.com',2350.00, 4758.00)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (7,'David','Buitrago','Vía Transístmica',2285698,'b_david@hotmail.com',400.00, 0)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (8,'Roberto','Torres','Las Cumbres',2226125,'torres_roberto@yahoo.com',8705, 9987.00)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (9,'Jaime','Jímenez','San Francisco',3257264,'jimenezja@hotmail.com',1025.00, 3500.00)
+
+insert into vendedor  (CODVEND, NOMVEND, APELLVEND, DIRVEND, TELVEND, E_MAIL, CUOTA, VENTAS)
+Values (10,'Erick','Martínez','Villa Lucre',2333542,'eri_martinez@hotmail.com',751, 873.00)
+
+
+
+
+
+
+USE VENTAS 
+GO
+
+
+
+
+/** se especifica el formato en que se guardara la fecha */
+SET DATEFORMAT dmy
+GO
+
+/* Insertando Registros en tabla PEDIDO */
+/** Insertando Registros en tabla Pedido */
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC, CODVEND)
+            values (101457, 2107,'02/12/1999',5.00, 6)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101456, 812,'01/12/1999',7.50,2)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101455, 1319,'01/12/1999',0.50,3)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101454, 824,'30/11/1999',2.00,9)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101453, 836,'28/11/1999',3.00,2)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101452, 812,'21/11/1999',6.25,10)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101451, 1319,'18/11/1999',7.20,6)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101450, 812,'15/11/1999',1.25,1)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101449, 812,'14/11/1999',4.00,4)
+insert into PEDIDO (NUMPED, NUMCLI , FECHA_PED , TOT_DESC,CODVEND)
+            values (101448, 836,'10/11/1999',6.00,8)
+
+GO
+
+use ventas
+GO
+
+/** Insertando los articulos del pedido  en tabla DETALLE Pedido */
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101456,'T101',100)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101456,'B16',50)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101456,'C118',30)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101456,'B14',10)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101457,'C118',20)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101454,'B14',60)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101453,'N38',100)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101453,'T101',50)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101452,'B16',20)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101452,'F251',4)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101452,'A38',1)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101451,'C118',30)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101451,'D117',10)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101450,'C118',20)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101449,'B14',60)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101448,'S247',100)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101448,'F251',50)
+insert into detalle_ped (NUMPED,      NUMART ,  CANTIDAD)
+values (101448,'A38',20)
+
+GO
+USE VENTAS
+GO
+
+
+/*  Create the Database  ARTICULO-PANAMA */
+CREATE TABLE ARTICULO_PANAMA  (NUMART char(4) not null PRIMARY KEY,
+         DESCRIPCION CHAR(30), CATEGORIA_ART CHAR (15))
+GO 
+
+
+USE VENTAS
+GO
+
+USE VENTAS
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('T101','Manteles',  'HOGAR')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('B16','Cobija',  'HOGAR')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('C118','Sabanas','HOGAR')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('B14','Toallas','HOGAR')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('N38','Servilletas', 'HOGAR')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('R504','Zapatillas', 'DEPORTES')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('F251','Raqueta de Tenis', 'DEPORTES')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('S247','Tornillos 3/4', 'FERRETERIA')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('D117','Tacos 3/4', 'FERRETERIA')
+insert into ARTICULO_PANAMA ( numart, descripcion,  categoria_art)
+Values ('A38','Velas Aromaticas', 'HOGAR')
+
+GO
+USE VENTAS 
+GO
+
+
+/*  Create the Database  ARTICULO-CHIRIQUI */
+CREATE TABLE ARTICULO_CHIRIQUI (NUMART char(4) not null PRIMARY KEY,
+         DESCRIPCION CHAR(30), CATEGORIA_ART CHAR (15))
+GO
+USE VENTAS 
+GO
+
+insert into ARTICULO_CHIRIQUI ( numart, descripcion,  categoria_art)
+Values ('T102','Portavasos',  'HOGAR')
+insert into ARTICULO_CHIRIQUI ( numart, descripcion,  categoria_art)
+Values ('T103','Agarra Ollas', 'HOGAR')
+insert into ARTICULO_CHIRIQUI ( numart, descripcion,  categoria_art)
+Values ('C118','Sabanas', 'HOGAR')
+insert into ARTICULO_CHIRIQUI ( numart, descripcion,  categoria_art)
+Values ('B14','Toallas', 'HOGAR')
+insert into ARTICULO_CHIRIQUI ( numart, descripcion,  categoria_art)
+Values ('R504','Zapatillas', 'DEPORTES')
+insert into ARTICULO_CHIRIQUI ( numart, descripcion,  categoria_art)
+Values ('F253','Balon de Basketball', 'DEPORTES')
+insert into ARTICULO_CHIRIQUI ( numart, descripcion,  categoria_art)
+Values ('S524','Destornillador estrella', 'FERRETERIA')
+insert into ARTICULO_CHIRIQUI ( numart, descripcion,  categoria_art)
+Values ('S525','Destornillador plano', 'FERRETERIA')
+
+/** fin del script que crea la base de datos de Pedidos */
